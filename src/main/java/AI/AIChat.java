@@ -127,7 +127,7 @@ public class AIChat {
 
     public List<AINotebook.Note> extractNotesFromResponse(String aiResponse) {
         List<AINotebook.Note> notes = new ArrayList<>();
-        String regex = "\\[NOTE\\](.*?):(.*?):(\\d+\\.\\d+)\\[/NOTE\\]";
+        String regex = "\\.*[NOTE](.*?):(.*?):(\\d+\\.\\d+)\\[/NOTE].*";
         Pattern notePattern = Pattern.compile(regex);
         Matcher matcher = notePattern.matcher(aiResponse);
 
