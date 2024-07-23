@@ -1,0 +1,104 @@
+package AI;
+
+import com.alibaba.dashscope.aigc.generation.GenerationParam;
+import com.alibaba.dashscope.common.Message;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.Hashtable;
+import java.util.List;
+
+public class ConfigurationPanel extends JPanel {
+    private JSlider topPSlider, topKSlider, repetitionPenaltySlider, temperatureSlider;
+    private JLabel topPLabel, topKLabel, repetitionPenaltyLabel, temperatureLabel;
+    private JButton resetButton;
+
+    public ConfigurationPanel() {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBackground(new Color(255, 248, 220));
+        setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "参数配置",
+                TitledBorder.CENTER, TitledBorder.TOP));
+
+        initializeSliders();
+        addSliders();
+        addResetButton();
+    }
+
+    private void initializeSliders() {
+        topPSlider = createSlider(0, 100, 80);
+        topKSlider = createSlider(0, 100, 0);
+        repetitionPenaltySlider = createSlider(100, 200, 110);
+        temperatureSlider = createSlider(0, 200, 80);
+
+        topPLabel = new JLabel("Top P: 0.80");
+        topKLabel = new JLabel("Top K: 0");
+        repetitionPenaltyLabel = new JLabel("Repetition Penalty: 1.10");
+        temperatureLabel = new JLabel("Temperature: 0.80");
+    }
+
+    private JSlider createSlider(int min, int max, int initialValue) {
+        JSlider slider = new JSlider(SwingConstants.HORIZONTAL, min, max, initialValue);
+        slider.setMajorTickSpacing((max - min) / 5);
+        slider.setMinorTickSpacing((max - min) / 20);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.setBackground(new Color(255, 248, 220));
+
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        for (int i = min; i <= max; i += (max - min) / 5) {
+            labelTable.put(i, new JLabel(String.format("%.2f", i / 100.0)));
+        }
+        slider.setLabelTable(labelTable);
+
+        return slider;
+    }
+
+    private void addSliders() {
+        add(Box.createVerticalStrut(10));
+        addSliderWithLabel(topPSlider, topPLabel, "Top P", 0.01, 2);
+        add(Box.createVerticalStrut(10));
+        addSliderWithLabel(topKSlider, topKLabel, "Top K", 1, 0);
+        add(Box.createVerticalStrut(10));
+        addSliderWithLabel(repetitionPenaltySlider, repetitionPenaltyLabel, "Repetition Penalty", 0.01, 2);
+        add(Box.createVerticalStrut(10));
+        addSliderWithLabel(temperatureSlider, temperatureLabel, "Temperature", 0.01, 2);
+    }
+
+    private void addSliderWithLabel(JSlider slider, JLabel label, String name, double scale, int decimalPlaces) {
+        add(label);
+        add(slider);
+        slider.addChangeListener(e -> {
+            double value = slider.getValue() * scale;
+            label.setText(String.format("%s: %." + decimalPlaces + "f", name, value));
+        });
+    }
+
+    public GenerationParam createGenerationParam(List<Message> messages) {
+        return GenerationParam.builder()
+                .model("qwen-72b-chat")
+                .messages(messages)
+                .resultFormat(GenerationParam.ResultFormat.MESSAGE)
+                .topP((double) topPSlider.getValue() / 100)
+                .topK(topKSlider.getValue())
+                .repetitionPenalty((float) repetitionPenaltySlider.getValue() / 100)
+                .temperature((float) temperatureSlider.getValue() / 100)
+                .apiKey(ApiKey.API_KEY)
+                .build();
+    }
+
+    private void addResetButton() {
+        resetButton = new JButton("重置参数");
+        resetButton.addActionListener(e -> resetToDefaults());
+        add(Box.createVerticalStrut(10));
+        add(resetButton);
+    }
+
+    public void resetToDefaults() {
+        topPSlider.setValue(80);
+        topKSlider.setValue(0);
+        repetitionPenaltySlider.setValue(110);
+        temperatureSlider.setValue(80);
+    }
+}

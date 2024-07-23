@@ -1,15 +1,22 @@
 package org.example;
 
+import lombok.Data;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author mac
  */
-public class AINotebook {
+public class AINotebook implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(AINotebook.class.getName());
     private List<Note> notes;
     private static final String NOTEBOOK_FILE = "ai_notebook.ser";
 
@@ -46,7 +53,7 @@ public class AINotebook {
         try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(NOTEBOOK_FILE)))) {
             oos.writeObject(notes);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error saving notebook", e);
         }
     }
 
@@ -57,13 +64,14 @@ public class AINotebook {
             try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(file.toPath()))) {
                 return (List<Note>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Error loading notebook", e);
             }
         }
         return new ArrayList<>();
     }
 
-    private static class Note implements Serializable {
+    @Data
+    public static class Note implements Serializable {
         private static final long serialVersionUID = 1L;
         String content;
         String tag;
@@ -71,7 +79,7 @@ public class AINotebook {
         LocalDateTime timestamp;
         boolean isPermanent;
 
-        Note(String content, String tag, double importance) {
+        public Note(String content, String tag, double importance) {
             this.content = content;
             this.tag = tag;
             this.importance = importance;
