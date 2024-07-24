@@ -43,9 +43,20 @@ public class AINotebook implements Serializable {
         return sb.toString();
     }
 
+    public void clearNotes(){
+        notes.clear();
+        saveNotebook();
+    }
+
     public void cleanupNotes() {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
         notes.removeIf(note -> !note.isPermanent && note.importance < 0.5 && note.timestamp.isBefore(oneMonthAgo));
+        saveNotebook();
+    }
+
+    public void cleanupNotes(double threshold){
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+        notes.removeIf(note -> !note.isPermanent && note.importance < threshold && note.timestamp.isBefore(oneMonthAgo));
         saveNotebook();
     }
 
