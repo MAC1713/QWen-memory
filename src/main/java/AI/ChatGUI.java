@@ -13,8 +13,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static AI.AIChatConstants.COLLATION;
+import static AI.AIChatConstants.TIME_TO_COLLATION;
+
 /**
- *
  * @author MAC1713
  * @email 1172820376@qq.com
  * @date 2024-07-23 03:59:06
@@ -82,7 +84,6 @@ public class ChatGUI extends JFrame {
 
         // Load existing notes
         if (!aiNotebook.getNotes().isEmpty()) {
-//            chatArea.append("Loaded existing notes:\n" + aiNotebook.getFormattedNotes() + "\n\n");
             notebookWindow.loadNotes();
         }
     }
@@ -131,10 +132,12 @@ public class ChatGUI extends JFrame {
     private void sendMessage() {
         String userInput = inputField.getText();
         CurrentUserMessage.getInstance().setMessage(userInput);
+        if (CurrentUserMessage.getInstance().getMessageCount() % TIME_TO_COLLATION == 0) {
+            sendSpecialMessage(Role.USER, COLLATION);
+        }
         if (!userInput.trim().isEmpty()) {
             chatArea.append("You: " + userInput + "\n");
             inputField.setText("");
-
             try {
                 List<Message> messages = new ArrayList<>();
                 messages.add(Message.builder().role(Role.USER.getValue()).content(userInput).build());
@@ -147,6 +150,17 @@ public class ChatGUI extends JFrame {
             } catch (ApiException | NoApiKeyException | InputRequiredException ex) {
                 chatArea.append("Error: " + ex.getMessage() + "\n\n");
             }
+        }
+    }
+
+    private void sendSpecialMessage(Role role, String collation) {
+        try {
+            List<Message> messages = new ArrayList<>();
+            messages.add(Message.builder().role(role.getValue()).content(collation).build());
+            String aiResponse = aiChat.generateResponse(collation, configPanel.createGenerationParam(messages));
+            checkAndUpdateNotebook(aiResponse);
+        } catch (ApiException | NoApiKeyException | InputRequiredException ex) {
+            chatArea.append("Error: " + ex.getMessage() + "\n\n");
         }
     }
 

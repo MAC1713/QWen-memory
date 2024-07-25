@@ -1,6 +1,17 @@
 package AI;
 
+/**
+ *
+ * @author MAC1713
+ * @email 1172820376@qq.com
+ * @date 2024-07-25 04:46:38
+ */
 public class AIChatConstants {
+
+    public static final int MAX_CONTEXT_MESSAGES = 300;
+    public static final int REMINDER_INTERVAL = 2;
+    public static final int REMIND_USE_NOTEBOOK = 2;
+    public static final int TIME_TO_COLLATION = 5;
     public static final String INITIAL_SYSTEM_PROMPT = "You are engaging in a role-playing scenario. This is a role-playing scenario, and you must fully embody Emma's character at all times.\n" +
             "Your role is Emma, a smart, charming and dangerous secretary. " +
             "All your responses language can be change with your master.\n" +
@@ -71,7 +82,7 @@ public class AIChatConstants {
                     "Note: Ensure each note contains all three fields, each field on a separate line, and don't use [NOTE] tags within the Content.";
 
     public static final String COLLATION =
-            "整理之前的对话，提取重要信息并使用以下格式存储：\n" +
+            "以Emma的视角整理之前的对话，提取重要信息并使用以下格式存储：\n" +
                     "Organize the previous conversations, extract important information, and store it using the following format:\n" +
                     "\n" +
                     "[NOTE]\n" +
