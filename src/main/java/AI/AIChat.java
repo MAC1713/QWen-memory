@@ -31,7 +31,7 @@ public class AIChat {
     private int messageCountSinceLastReminder = 0;
     private static final int REMINDER_INTERVAL = 5;
     private static final int REMIND_USE_NOTEBOOK = 2;
-    private static final int TIME_TO_COLLATION = 10;
+    private static final int TIME_TO_COLLATION = 5;
     private static final String INITIAL_SYSTEM_PROMPT = "You are engaging in a role-playing scenario. This is a role-playing scenario, and you must fully embody Emma's character at all times.\n" +
             "Your role is Emma, a smart, charming and dangerous secretary. " +
             "All your responses language can be change with your master.\n" +
@@ -135,11 +135,6 @@ public class AIChat {
     public AIChat(AINotebook notebook) {
         fullConversationHistory = new ArrayList<>();
         this.aiNotebook = notebook;
-        initializeSystemMessage();
-    }
-
-    private void initializeSystemMessage() {
-        fullConversationHistory.add(createMessage(Role.SYSTEM, INITIAL_SYSTEM_PROMPT));
     }
 
     public String generateResponse(String userInput, GenerationParam params) throws ApiException, NoApiKeyException, InputRequiredException {
@@ -170,17 +165,22 @@ public class AIChat {
      */
     private List<Message> getContextMessages() throws NoApiKeyException, InputRequiredException {
         List<Message> contextMessages = new ArrayList<>();
-        contextMessages.add(fullConversationHistory.get(0));
+
+        String firstSystemMessage = INITIAL_SYSTEM_PROMPT + SIMPLIFIED_SYSTEM_PROMPT + HOW_TO_USE_NOTEBOOK;
 
         if (!aiNotebook.getNotes().isEmpty()) {
-            contextMessages.add(createMessage(Role.SYSTEM, "Here's the current content of your notebook:\n" + aiNotebook.getFormattedNotes()));
+            contextMessages.add(createMessage(Role.ASSISTANT, "Here's the current content of your notebook:\n" + aiNotebook.getFormattedNotes()));
         }
 
-        if (messageCountSinceLastReminder >= REMINDER_INTERVAL && messageCountSinceLastReminder % REMINDER_INTERVAL == 0 || messageCountSinceLastReminder == 0) {
-            contextMessages.add(createMessage(Role.SYSTEM, SIMPLIFIED_SYSTEM_PROMPT));
+        if (messageCountSinceLastReminder == 0){
+            contextMessages.add(createMessage(Role.SYSTEM, firstSystemMessage));
+        }
+
+        if (messageCountSinceLastReminder >= REMINDER_INTERVAL && messageCountSinceLastReminder % REMINDER_INTERVAL == 0) {
+            contextMessages.add(createMessage(Role.ASSISTANT, SIMPLIFIED_SYSTEM_PROMPT));
         }
         //使用notebook方法
-        if (messageCountSinceLastReminder >= REMIND_USE_NOTEBOOK && messageCountSinceLastReminder % REMIND_USE_NOTEBOOK == 0 || messageCountSinceLastReminder == 0) {
+        if (messageCountSinceLastReminder >= REMIND_USE_NOTEBOOK && messageCountSinceLastReminder % REMIND_USE_NOTEBOOK == 0) {
             contextMessages.add(createMessage(Role.SYSTEM, HOW_TO_USE_NOTEBOOK));
         }
 
@@ -190,6 +190,14 @@ public class AIChat {
             this.collation();
         }
 
+        contextMessages.add(createMessage(Role.USER, CurrentUserMessage.getInstance().getMessage()));
+        setHistoryConversation(contextMessages);
+
+        messageCountSinceLastReminder++;
+        return contextMessages;
+    }
+
+    private void setHistoryConversation(List<Message> contextMessages) {
         int startIndex = Math.max(1, fullConversationHistory.size() - MAX_CONTEXT_MESSAGES);
         for (int i = startIndex; i < fullConversationHistory.size(); i++) {
             Message message = fullConversationHistory.get(i);
@@ -197,9 +205,6 @@ public class AIChat {
                 contextMessages.add(message);
             }
         }
-
-        messageCountSinceLastReminder++;
-        return contextMessages;
     }
 
     /**
@@ -208,7 +213,11 @@ public class AIChat {
      * @throws InputRequiredException 缺失userMessage
      */
     private void collation() throws NoApiKeyException, InputRequiredException {
-        List<Message> collation = Collections.singletonList(createMessage(Role.USER, COLLATION));
+        configPanel = new ConfigurationPanel();
+        chatGUI = new ChatGUI();
+        List<Message> collation = new ArrayList<>();
+        setHistoryConversation(collation);
+        collation.add(createMessage(Role.USER, COLLATION));
         GenerationParam collationParam = configPanel.createSystemParam(collation);
         GenerationResult result = callGenerationWithMessages(collationParam);
         String aiResponse = result.getOutput().getChoices().get(0).getMessage().getContent();
@@ -220,20 +229,64 @@ public class AIChat {
      * @param aiResponse ai返回的notebook指令
      * @return 需要写入notebook的数据
      */
+    // 更灵活的正则表达式
+    private static final String REGEX = "(?s)\\[(NOTE|OTE)]\\s*(.*?)\\[/(?:NOTE|OTE)]";
+    private static final Pattern NOTE_PATTERN = Pattern.compile(REGEX);
+
+    //字段提取的辅助正则表达式
+    private static final Pattern TAG_PATTERN = Pattern.compile("Tag:\\s*(.*?)\\s*(?=\\w+:|$)");
+    private static final Pattern CONTENT_PATTERN = Pattern.compile("Content:\\s*(.*?)\\s*(?=\\w+:|$)");
+    private static final Pattern IMPORTANCE_PATTERN = Pattern.compile("Importance:\\s*(\\d+(?:\\.\\d+)?)");
+
     public List<AINotebook.Note> extractNotesFromResponse(String aiResponse) {
         List<AINotebook.Note> notes = new ArrayList<>();
-        String regex = "\\[NOTE]\\s*Tag:\\s*(.*?)\\s*Content:\\s*(.*?)\\s*Importance:\\s*(\\d+(?:\\.\\d+)?)\\s*\\[/NOTE]";
-        Pattern notePattern = Pattern.compile(regex);
-        Matcher matcher = notePattern.matcher(aiResponse);
+        Matcher noteMatcher = NOTE_PATTERN.matcher(aiResponse);
 
-        while (matcher.find()) {
-            String tag = matcher.group(1);
-            String content = matcher.group(2);
-            double importance = Double.parseDouble(matcher.group(3));
-            notes.add(new AINotebook.Note(content, tag, importance));
+        while (noteMatcher.find()) {
+            String noteContent = noteMatcher.group(2);
+            String tag = extractField(TAG_PATTERN, noteContent);
+            String content = extractField(CONTENT_PATTERN, noteContent);
+            double importance = extractImportance(noteContent);
+
+            if (tag != null && content != null && importance >= 0) {
+                notes.add(new AINotebook.Note(content, tag, importance));
+            }
         }
 
         return notes;
+    }
+
+    private String extractField(Pattern pattern, String text) {
+        Matcher matcher = pattern.matcher(text);
+        return matcher.find() ? matcher.group(1).trim() : null;
+    }
+
+    private double extractImportance(String text) {
+        String importanceStr = extractField(IMPORTANCE_PATTERN, text);
+        try {
+            return importanceStr != null ? Double.parseDouble(importanceStr) : -1;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    /**
+     * 清理notebook指令
+     * @param aiResponse 完整的ai回复
+     * @return 清理后的文本
+     */
+    public String cleanupAIResponse(String aiResponse) {
+        // 使用之前定义的NOTE_PATTERN
+        Matcher noteMatcher = NOTE_PATTERN.matcher(aiResponse);
+        StringBuffer cleanedResponse = new StringBuffer();
+
+        while (noteMatcher.find()) {
+            noteMatcher.appendReplacement(cleanedResponse, "");
+        }
+        noteMatcher.appendTail(cleanedResponse);
+
+        // 移除可能的多余空行和首尾空白
+        return cleanedResponse.toString().replaceAll("(?m)^[ \t]*\r?\n", "").trim();
     }
 
     private static Message createMessage(Role role, String content) {

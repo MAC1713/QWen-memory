@@ -64,7 +64,7 @@ public class ChatGUI extends JFrame {
         add(mainPanel, BorderLayout.CENTER);
 
         // Add cleanup slider
-        cleanupSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
+        cleanupSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 100, 50);
         cleanupSlider.setMajorTickSpacing(25);
         cleanupSlider.setMinorTickSpacing(5);
         cleanupSlider.setPaintTicks(true);
@@ -130,6 +130,7 @@ public class ChatGUI extends JFrame {
 
     private void sendMessage() {
         String userInput = inputField.getText();
+        CurrentUserMessage.getInstance().setMessage(userInput);
         if (!userInput.trim().isEmpty()) {
             chatArea.append("You: " + userInput + "\n");
             inputField.setText("");
@@ -138,9 +139,11 @@ public class ChatGUI extends JFrame {
                 List<Message> messages = new ArrayList<>();
                 messages.add(Message.builder().role(Role.USER.getValue()).content(userInput).build());
                 String aiResponse = aiChat.generateResponse(userInput, configPanel.createGenerationParam(messages));
-                chatArea.append("Emma: " + aiResponse + "\n\n");
-
+                //存入notebook
                 checkAndUpdateNotebook(aiResponse);
+                //去除note指令部分
+                aiResponse = aiChat.cleanupAIResponse(aiResponse);
+                chatArea.append("Emma: " + aiResponse + "\n\n");
             } catch (ApiException | NoApiKeyException | InputRequiredException ex) {
                 chatArea.append("Error: " + ex.getMessage() + "\n\n");
             }
@@ -152,8 +155,6 @@ public class ChatGUI extends JFrame {
         List<AINotebook.Note> newNotes = aiChat.extractNotesFromResponse(aiResponse);
         for (AINotebook.Note note : newNotes) {
             aiNotebook.addNote(note.getContent(), note.getTag(), note.getImportance());
-//            chatArea.append("Added note to AI Notebook: [" + note.getTag() + "] " + note.getContent() +
-//                    " (Importance: " + note.getImportance() + ")\n\n");
         }
         notebookWindow.loadNotes();
     }
