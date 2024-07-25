@@ -5,7 +5,6 @@ import org.example.AINotebook;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.event.*;
 import java.util.List;
 import java.util.ArrayList;

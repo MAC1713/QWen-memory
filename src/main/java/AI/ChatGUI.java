@@ -82,7 +82,7 @@ public class ChatGUI extends JFrame {
 
         // Load existing notes
         if (!aiNotebook.getNotes().isEmpty()) {
-            chatArea.append("Loaded existing notes:\n" + aiNotebook.getFormattedNotes() + "\n\n");
+//            chatArea.append("Loaded existing notes:\n" + aiNotebook.getFormattedNotes() + "\n\n");
             notebookWindow.loadNotes();
         }
     }
@@ -147,12 +147,13 @@ public class ChatGUI extends JFrame {
         }
     }
 
-    private void checkAndUpdateNotebook(String aiResponse) {
+    void checkAndUpdateNotebook(String aiResponse) {
+        System.out.println("aiResponse = " + aiResponse);
         List<AINotebook.Note> newNotes = aiChat.extractNotesFromResponse(aiResponse);
         for (AINotebook.Note note : newNotes) {
             aiNotebook.addNote(note.getContent(), note.getTag(), note.getImportance());
-            chatArea.append("Added note to AI Notebook: [" + note.getTag() + "] " + note.getContent() +
-                    " (Importance: " + note.getImportance() + ")\n\n");
+//            chatArea.append("Added note to AI Notebook: [" + note.getTag() + "] " + note.getContent() +
+//                    " (Importance: " + note.getImportance() + ")\n\n");
         }
         notebookWindow.loadNotes();
     }
