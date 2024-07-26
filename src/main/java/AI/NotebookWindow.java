@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import javax.swing.event.*;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.regex.*;
@@ -20,12 +21,17 @@ public class NotebookWindow extends JFrame {
     private JTextField searchField;
     private JButton exportButton;
     private JButton importButton;
+    private JButton cleanupButton;
+    private JSlider cleanupSlider;
+    private JLabel cleanupLabel;
+    private JLabel sliderValueLabel;
+
     private List<AINotebook.Note> originalNotes;
 
     public NotebookWindow(AINotebook aiNotebook) {
         super("AI Notebook");
         this.aiNotebook = aiNotebook;
-        setSize(600, 400);
+        setSize(800, 600);
         setLayout(new BorderLayout());
         setResizable(true);
 
@@ -41,10 +47,14 @@ public class NotebookWindow extends JFrame {
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel cleanupPanel = new JPanel(new GridBagLayout());
+
         saveButton = new JButton("Save");
         cancelButton = new JButton("Cancel");
         exportButton = new JButton("Export Notes");
         importButton = new JButton("Import Notes");
+        cleanupButton = new JButton("Cleanup Notes");
+
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
         buttonPanel.add(exportButton);
@@ -54,12 +64,53 @@ public class NotebookWindow extends JFrame {
         searchField = new JTextField(20);
         bottomPanel.add(searchField, BorderLayout.NORTH);
 
+        // Add cleanup slider and labels
+        cleanupLabel = new JLabel("Importance Threshold:");
+        cleanupSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 10, 5);
+        cleanupSlider.setMajorTickSpacing(2);
+        cleanupSlider.setMinorTickSpacing(1);
+        cleanupSlider.setPaintTicks(true);
+        cleanupSlider.setPaintLabels(true);
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        for (int i = 0; i <= 10; i += 2) {
+            labelTable.put(i, new JLabel(String.format("%.1f", i / 10.0)));
+        }
+        cleanupSlider.setLabelTable(labelTable);
+
+        sliderValueLabel = new JLabel("0.5");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        cleanupPanel.add(cleanupLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        cleanupPanel.add(cleanupSlider, gbc);
+
+        gbc.gridx = 2;
+        gbc.weightx = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        cleanupPanel.add(sliderValueLabel, gbc);
+
+        gbc.gridx = 3;
+        cleanupPanel.add(cleanupButton, gbc);
+
+        bottomPanel.add(cleanupPanel, BorderLayout.CENTER);
+
         add(bottomPanel, BorderLayout.SOUTH);
 
         saveButton.addActionListener(e -> saveNotes());
         cancelButton.addActionListener(e -> loadNotes());
         exportButton.addActionListener(e -> exportNotes());
         importButton.addActionListener(e -> importNotes());
+        cleanupButton.addActionListener(e -> cleanupNotes());
+
+        cleanupSlider.addChangeListener(e -> updateSliderValueLabel());
+
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) { search(); }
             public void removeUpdate(DocumentEvent e) { search(); }
@@ -228,6 +279,23 @@ public class NotebookWindow extends JFrame {
                 component.setBackground(bgColor);
                 updateComponentColors(((JPanel) component).getComponents(), bgColor, fgColor);
             }
+        }
+    }
+
+    private void updateSliderValueLabel() {
+        double value = cleanupSlider.getValue() / 10.0;
+        sliderValueLabel.setText(String.format("%.1f", value));
+    }
+
+    private void cleanupNotes() {
+        double threshold = cleanupSlider.getValue() / 10.0;
+        int option = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete all notes with importance below " + String.format("%.1f", threshold) + "?",
+                "Cleanup Notes", JOptionPane.YES_NO_OPTION);
+        if (option == JOptionPane.YES_OPTION) {
+            aiNotebook.cleanupNotes(threshold);
+            loadNotes();
+            JOptionPane.showMessageDialog(this, "Notes cleaned up successfully.");
         }
     }
 }

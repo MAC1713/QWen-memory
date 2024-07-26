@@ -31,8 +31,10 @@ public class ChatGUI extends JFrame {
     private ConfigurationPanel configPanel;
     private JButton openNotebookButton;
     private NotebookWindow notebookWindow;
-    private JSlider cleanupSlider;
     private JToggleButton themeToggle;
+    private JButton openConstantsEditorButton;
+    private AIConstantsEditorWindow constantsEditorWindow;
+    private AIConstantsManager constantsManager;
     private boolean isDarkMode = false;
 
     public ChatGUI() {
@@ -50,6 +52,11 @@ public class ChatGUI extends JFrame {
         aiChat = new AIChat(aiNotebook);
         configPanel = new ConfigurationPanel();
         notebookWindow = new NotebookWindow(aiNotebook);
+        // Initialize AIConstantsManager
+        constantsManager = new AIConstantsManager();
+
+        // Initialize AIConstantsEditorWindow
+        constantsEditorWindow = new AIConstantsEditorWindow(constantsManager);
 
         // Create main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -64,23 +71,6 @@ public class ChatGUI extends JFrame {
         mainPanel.add(chatPanel, BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.CENTER);
-
-        // Add cleanup slider
-        cleanupSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 100, 50);
-        cleanupSlider.setMajorTickSpacing(25);
-        cleanupSlider.setMinorTickSpacing(5);
-        cleanupSlider.setPaintTicks(true);
-        cleanupSlider.setPaintLabels(true);
-
-        JButton cleanupButton = new JButton("Cleanup Notes");
-        cleanupButton.addActionListener(e -> cleanupNotes());
-
-        JPanel cleanupPanel = new JPanel(new BorderLayout());
-        cleanupPanel.add(new JLabel("Importance Threshold:"), BorderLayout.WEST);
-        cleanupPanel.add(cleanupSlider, BorderLayout.CENTER);
-        cleanupPanel.add(cleanupButton, BorderLayout.EAST);
-
-        mainPanel.add(cleanupPanel, BorderLayout.SOUTH);
 
         // Load existing notes
         if (!aiNotebook.getNotes().isEmpty()) {
@@ -119,6 +109,11 @@ public class ChatGUI extends JFrame {
         themeToggle.addActionListener(e -> toggleTheme());
         buttonPanel.add(themeToggle);
 
+        // Add open constants editor button
+        openConstantsEditorButton = new JButton("Edit AI Constants");
+        openConstantsEditorButton.addActionListener(e -> openConstantsEditorWindow());
+        buttonPanel.add(openConstantsEditorButton);
+
         inputPanel.add(inputField, BorderLayout.CENTER);
         inputPanel.add(buttonPanel, BorderLayout.EAST);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
@@ -132,7 +127,7 @@ public class ChatGUI extends JFrame {
     private void sendMessage() {
         String userInput = inputField.getText();
         CurrentUserMessage.getInstance().setMessage(userInput);
-        if (CurrentUserMessage.getInstance().getMessageCount() % TIME_TO_COLLATION == 0) {
+        if (CurrentUserMessage.getInstance().getMessageCount() % TIME_TO_COLLATION == 0 && CurrentUserMessage.getInstance().getMessageCount() > 0) {
             sendSpecialMessage(Role.USER, COLLATION);
         }
         if (!userInput.trim().isEmpty()) {
@@ -177,18 +172,6 @@ public class ChatGUI extends JFrame {
         notebookWindow.setVisible(true);
     }
 
-    private void cleanupNotes() {
-        double threshold = cleanupSlider.getValue() / 100.0;
-        int option = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete all notes with importance below " + threshold + "?",
-                "Cleanup Notes", JOptionPane.YES_NO_OPTION);
-        if (option == JOptionPane.YES_OPTION) {
-            aiNotebook.cleanupNotes(threshold);
-            notebookWindow.loadNotes();
-            JOptionPane.showMessageDialog(this, "Notes cleaned up successfully.");
-        }
-    }
-
     private void toggleTheme() {
         isDarkMode = !isDarkMode;
         applyTheme();
@@ -206,14 +189,15 @@ public class ChatGUI extends JFrame {
         configPanel.setBackground(bgColor);
         configPanel.setForeground(fgColor);
 
-        // Update button colors
-        Component[] components = getContentPane().getComponents();
-        updateComponentColors(components, bgColor, fgColor);
-
         // Update NotebookWindow theme
         notebookWindow.applyTheme(isDarkMode);
+        constantsEditorWindow.applyTheme(isDarkMode);
 
         SwingUtilities.updateComponentTreeUI(this);
+    }
+
+    private void openConstantsEditorWindow() {
+        constantsEditorWindow.setVisible(true);
     }
 
     private void updateComponentColors(Component[] components, Color bgColor, Color fgColor) {
@@ -225,6 +209,10 @@ public class ChatGUI extends JFrame {
                 component.setBackground(bgColor);
                 updateComponentColors(((JPanel) component).getComponents(), bgColor, fgColor);
             }
+        }
+        // Apply theme to AIConstantsEditorWindow
+        if (constantsEditorWindow != null) {
+            constantsEditorWindow.applyTheme(isDarkMode);
         }
     }
 }
