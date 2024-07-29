@@ -10,9 +10,7 @@ import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import org.example.AINotebook;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,12 +23,10 @@ public class AIChat {
     private static final Logger LOGGER = Logger.getLogger(AIChat.class.getName());
     private final List<Message> fullConversationHistory;
     private final AINotebook aiNotebook;
-    private ConfigurationPanel configPanel;
-    private ChatGUI chatGUI;
     private int messageCountSinceLastReminder = CurrentUserMessage.getInstance().getMessageCount();
 
-    private static final String REGEX = "(?s)\\[(NOTE|OTE)]\\s*(.*?)\\[/(?:NOTE|OTE)]";
-    private static final Pattern NOTE_PATTERN = Pattern.compile(REGEX);
+    private static final String NOTE_REGEX = "(?s)\\[(NOTE|OTE)]\\s*(.*?)\\[/(?:NOTE|OTE)]";
+    private static final Pattern NOTE_PATTERN = Pattern.compile(NOTE_REGEX);
     private static final Pattern TAG_PATTERN = Pattern.compile("Tag:\\s*(.*?)\\s*(?=\\w+:|$)");
     private static final Pattern CONTENT_PATTERN = Pattern.compile("Content:\\s*(.*?)\\s*(?=\\w+:|$)");
     private static final Pattern IMPORTANCE_PATTERN = Pattern.compile("Importance:\\s*(\\d+(?:\\.\\d+)?)");
@@ -63,7 +59,7 @@ public class AIChat {
     private List<Message> getContextMessages() {
         List<Message> contextMessages = new ArrayList<>();
 
-        String firstSystemMessage = AIChatConstants.INITIAL_SYSTEM_PROMPT + AIChatConstants.SIMPLIFIED_SYSTEM_PROMPT + AIChatConstants.HOW_TO_USE_NOTEBOOK;
+        String firstSystemMessage = AIChatConstants.INITIAL_SYSTEM_PROMPT + "\n" + AIChatConstants.SIMPLIFIED_SYSTEM_PROMPT + "\n" + AIChatConstants.HOW_TO_USE_NOTEBOOK;
 
         //初始化System消息
         if (messageCountSinceLastReminder == 0) {
@@ -105,6 +101,7 @@ public class AIChat {
 
     /**
      * 正则批量处理ai返回notebook指令
+     *
      * @param aiResponse ai返回的notebook指令
      * @return 需要写入notebook的数据
      */
@@ -141,7 +138,8 @@ public class AIChat {
     }
 
     /**
-     * 清理notebook指令
+     * 清理输出中的notebook指令
+     *
      * @param aiResponse 完整的ai回复
      * @return 清理后的文本
      */
@@ -157,6 +155,30 @@ public class AIChat {
 
         // 移除可能的多余空行和首尾空白
         return cleanedResponse.toString().replaceAll("(?m)^[ \t]*\r?\n", "").trim();
+    }
+
+    /**
+     * 删除返回的 [NOTE]标签
+     *
+     * @param input aiResponse
+     * @return 删除
+     */
+    public String removeNoteTags(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        String startTag = "[NOTE]";
+        String endTag = "[/NOTE]";
+
+        int startIndex = input.indexOf(startTag);
+        int endIndex = input.lastIndexOf(endTag);
+
+        if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+            return input.substring(startIndex + startTag.length(), endIndex).trim();
+        } else {
+            return input;
+        }
     }
 
     private static Message createMessage(Role role, String content) {

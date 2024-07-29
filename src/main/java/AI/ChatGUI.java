@@ -13,8 +13,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static AI.AIChatConstants.COLLATION;
-import static AI.AIChatConstants.TIME_TO_COLLATION;
+import static AI.AIChatConstants.*;
 
 /**
  * @author MAC1713
@@ -127,7 +126,11 @@ public class ChatGUI extends JFrame {
     private void sendMessage() {
         String userInput = inputField.getText();
         CurrentUserMessage.getInstance().setMessage(userInput);
-        if (CurrentUserMessage.getInstance().getMessageCount() % TIME_TO_COLLATION == 0 && CurrentUserMessage.getInstance().getMessageCount() > 0) {
+        int messageCount = CurrentUserMessage.getInstance().getMessageCount();
+        if (messageCount == 1) {
+            sendSpecialMessage(Role.USER, REPEAT_NOTEBOOK);
+        }
+        if (messageCount % TIME_TO_COLLATION == 0 && messageCount > 0) {
             sendSpecialMessage(Role.USER, COLLATION);
         }
         if (!userInput.trim().isEmpty()) {
@@ -140,7 +143,7 @@ public class ChatGUI extends JFrame {
                 //存入notebook
                 checkAndUpdateNotebook(aiResponse);
                 //去除note指令部分
-                aiResponse = aiChat.cleanupAIResponse(aiResponse);
+                aiResponse = aiChat.removeNoteTags(aiResponse);
                 chatArea.append("Emma: " + aiResponse + "\n\n");
             } catch (ApiException | NoApiKeyException | InputRequiredException ex) {
                 chatArea.append("Error: " + ex.getMessage() + "\n\n");
@@ -200,20 +203,5 @@ public class ChatGUI extends JFrame {
         constantsEditorWindow.setVisible(true);
     }
 
-    private void updateComponentColors(Component[] components, Color bgColor, Color fgColor) {
-        for (Component component : components) {
-            if (component instanceof JButton) {
-                component.setBackground(bgColor);
-                component.setForeground(fgColor);
-            } else if (component instanceof JPanel) {
-                component.setBackground(bgColor);
-                updateComponentColors(((JPanel) component).getComponents(), bgColor, fgColor);
-            }
-        }
-        // Apply theme to AIConstantsEditorWindow
-        if (constantsEditorWindow != null) {
-            constantsEditorWindow.applyTheme(isDarkMode);
-        }
-    }
 }
 

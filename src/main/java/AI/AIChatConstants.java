@@ -82,6 +82,8 @@ public class AIChatConstants {
                     "注意：确保每个笔记都包含所有三个字段，每个字段单独一行，且不在Content中使用[NOTE]标签。\n" +
                     "Note: Ensure each note contains all three fields, each field on a separate line, and don't use [NOTE] tags within the Content.";
 
+    public static final String REPEAT_NOTEBOOK = " Emma，重复一下notebook的使用方法指令";
+
     public static final String COLLATION =
             "以Emma的视角整理之前的对话，提取重要信息并使用以下格式存储：\n" +
                     "Organize the previous conversations, extract important information, and store it using the following format:\n" +
