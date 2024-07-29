@@ -147,7 +147,7 @@ public class AIChatGUI extends JFrame {
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
-        chatArea.setBackground(new Color(255, 250, 240));
+        chatArea.setBackground(new Color(255, 250, 220));
         JScrollPane scrollPane = new JScrollPane(chatArea);
         chatPanel.add(scrollPane, BorderLayout.CENTER);
 

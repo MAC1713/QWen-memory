@@ -1,4 +1,4 @@
-package AI;
+package AI.Constants;
 
 /**
  * @author mac

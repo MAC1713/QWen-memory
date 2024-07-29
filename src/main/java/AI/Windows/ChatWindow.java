@@ -1,5 +1,8 @@
-package AI;
+package AI.Windows;
 
+import AI.*;
+import AI.Global.CurrentUserMessage;
+import AI.Manager.AIConstantsManager;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
@@ -12,7 +15,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static AI.AIChatConstants.*;
+import static AI.Constants.AIChatConstants.*;
 
 /**
  * @author MAC1713
@@ -26,10 +29,11 @@ public class ChatWindow extends JFrame {
     private JButton sendButton;
     private AIChat aiChat;
     private AINotebook aiNotebook;
-    private ConfigurationPanel configPanel;
+    private ConfigurationWindow configPanel;
     private NotebookWindow notebookWindow;
     private AIConstantsEditorWindow constantsEditorWindow;
     private AIConstantsManager constantsManager;
+    private SidebarMenu sidebarMenu;
 
     public ChatWindow() {
         super("AI Chat");
@@ -41,10 +45,11 @@ public class ChatWindow extends JFrame {
     private void initComponents() {
         aiNotebook = new AINotebook();
         aiChat = new AIChat(aiNotebook);
-        configPanel = new ConfigurationPanel();
+        configPanel = new ConfigurationWindow();
         notebookWindow = new NotebookWindow(aiNotebook);
         constantsManager = new AIConstantsManager();
         constantsEditorWindow = new AIConstantsEditorWindow(constantsManager);
+        sidebarMenu = new SidebarMenu(this);
 
         chatArea = new JTextArea();
         inputField = new JTextField();
@@ -57,12 +62,26 @@ public class ChatWindow extends JFrame {
         setLayout(new BorderLayout());
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(configPanel, BorderLayout.WEST);
         mainPanel.add(createChatPanel(), BorderLayout.CENTER);
 
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.add(createMenuButton());
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+
         add(mainPanel, BorderLayout.CENTER);
+        add(sidebarMenu, BorderLayout.WEST);
 
         UIConfig.applyInitialTheme(this);
+    }
+
+    private JButton createMenuButton() {
+        JButton menuButton = new JButton("☰");
+        menuButton.setFocusPainted(false);
+        menuButton.setBorderPainted(false);
+        menuButton.setContentAreaFilled(false);
+        menuButton.setPreferredSize(new Dimension(30, 30));
+        menuButton.addActionListener(e -> sidebarMenu.toggleSidebar());
+        return menuButton;
     }
 
     private JPanel createChatPanel() {
@@ -71,19 +90,14 @@ public class ChatWindow extends JFrame {
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
+        chatArea.setBackground(new Color(255, 248, 220));
+
         JScrollPane scrollPane = new JScrollPane(chatArea);
         chatPanel.add(scrollPane, BorderLayout.CENTER);
 
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(inputField, BorderLayout.CENTER);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.add(sendButton);
-        buttonPanel.add(UIConfig.createOpenNotebookButton(this::openNotebookWindow));
-        buttonPanel.add(UIConfig.createThemeToggle(this::toggleTheme));
-        buttonPanel.add(UIConfig.createOpenConstantsEditorButton(this::openConstantsEditorWindow));
-
-        inputPanel.add(buttonPanel, BorderLayout.EAST);
+        inputPanel.add(sendButton, BorderLayout.EAST);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
         return chatPanel;
@@ -140,18 +154,34 @@ public class ChatWindow extends JFrame {
         notebookWindow.loadNotes();
     }
 
-    private void openNotebookWindow() {
+    /**
+     * 打开记事本窗口
+     */
+    public void openNotebookWindow() {
         notebookWindow.setVisible(true);
     }
 
-    private void toggleTheme() {
-        UIConfig.toggleTheme(this, chatArea, inputField, configPanel);
-        notebookWindow.applyTheme(UIConfig.isDarkMode());
-        constantsEditorWindow.applyTheme(UIConfig.isDarkMode());
+    /**
+     * 打开提示词窗口
+     */
+    public void openConstantsEditorWindow() {
+        constantsEditorWindow.setVisible(true);
     }
 
-    private void openConstantsEditorWindow() {
-        constantsEditorWindow.setVisible(true);
+    public void openConfigWindow() {
+        configPanel.setVisible(true);
+    }
+
+    public void toggleTheme() {
+        UIConfig.toggleTheme(this, chatArea, inputField);
+        notebookWindow.applyTheme(UIConfig.isDarkMode());
+        constantsEditorWindow.applyTheme(UIConfig.isDarkMode());
+        sidebarMenu.applyTheme(UIConfig.isDarkMode());
+        configPanel.applyTheme(UIConfig.isDarkMode());
+    }
+
+    public ConfigurationWindow getConfigPanel() {
+        return configPanel;
     }
 }
 

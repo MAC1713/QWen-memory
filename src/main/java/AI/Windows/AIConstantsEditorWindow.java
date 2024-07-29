@@ -1,4 +1,6 @@
-package AI;
+package AI.Windows;
+
+import AI.Manager.AIConstantsManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +18,7 @@ public class AIConstantsEditorWindow extends JFrame {
         this.constantsManager = manager;
         setSize(600, 400);
         setLayout(new BorderLayout());
+        setBackground(new Color(255, 248, 220));
 
         JPanel mainPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -46,6 +49,7 @@ public class AIConstantsEditorWindow extends JFrame {
 
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
+        textArea.setBackground(new Color(255, 248, 220));
         JScrollPane scrollPane = new JScrollPane(textArea);
         panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -62,12 +66,11 @@ public class AIConstantsEditorWindow extends JFrame {
         Color fgColor = isDarkMode ? Color.WHITE : Color.BLACK;
 
         this.getContentPane().setBackground(bgColor);
-        initialPromptArea.setBackground(isDarkMode ? new Color(70, 70, 70) : new Color(255, 250, 240));
+        initialPromptArea.setBackground(isDarkMode ? new Color(70, 70, 70) : new Color(255, 250, 220));
         initialPromptArea.setForeground(fgColor);
-        simplifiedPromptArea.setBackground(isDarkMode ? new Color(70, 70, 70) : new Color(255, 250, 240));
+        simplifiedPromptArea.setBackground(isDarkMode ? new Color(70, 70, 70) : new Color(255, 250, 220));
         simplifiedPromptArea.setForeground(fgColor);
         saveButton.setBackground(bgColor);
-        saveButton.setForeground(fgColor);
 
         updateComponentColors(this.getContentPane().getComponents(), bgColor, fgColor);
 

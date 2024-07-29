@@ -1,4 +1,4 @@
-package AI;
+package AI.Constants;
 
 /**
  * 管理关键常量

@@ -1,4 +1,6 @@
-package AI;
+package AI.Manager;
+
+import AI.Constants.AIChatConstants;
 
 import java.io.*;
 import java.util.Properties;

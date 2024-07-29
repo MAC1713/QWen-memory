@@ -1,4 +1,4 @@
-package AI;
+package AI.Windows;
 
 import org.example.AINotebook;
 
@@ -42,6 +42,8 @@ public class NotebookWindow extends JFrame {
     private void initComponents() {
         notebookArea = new JTextPane();
         notebookArea.setEditable(true);
+        notebookArea.setBackground(new Color(255, 248, 220));
+
         JScrollPane scrollPane = new JScrollPane(notebookArea);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -258,7 +260,7 @@ public class NotebookWindow extends JFrame {
         Color fgColor = isDarkMode ? Color.WHITE : Color.BLACK;
 
         getContentPane().setBackground(bgColor);
-        notebookArea.setBackground(isDarkMode ? new Color(70, 70, 70) : new Color(255, 250, 240));
+        notebookArea.setBackground(isDarkMode ? new Color(70, 70, 70) : new Color(255, 250, 220));
         notebookArea.setForeground(fgColor);
         searchField.setBackground(bgColor);
         searchField.setForeground(fgColor);
@@ -274,7 +276,6 @@ public class NotebookWindow extends JFrame {
         for (Component component : components) {
             if (component instanceof JButton) {
                 component.setBackground(bgColor);
-                component.setForeground(fgColor);
             } else if (component instanceof JPanel) {
                 component.setBackground(bgColor);
                 updateComponentColors(((JPanel) component).getComponents(), bgColor, fgColor);

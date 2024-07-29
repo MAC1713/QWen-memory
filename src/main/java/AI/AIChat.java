@@ -1,5 +1,7 @@
 package AI;
 
+import AI.Constants.AIChatConstants;
+import AI.Global.CurrentUserMessage;
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
@@ -17,7 +19,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static AI.AIChatConstants.*;
+import static AI.Constants.AIChatConstants.*;
 
 public class AIChat {
     private static final Logger LOGGER = Logger.getLogger(AIChat.class.getName());

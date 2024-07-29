@@ -1,5 +1,7 @@
 package AI;
 
+import AI.Windows.ChatWindow;
+
 import javax.swing.*;
 
 /**

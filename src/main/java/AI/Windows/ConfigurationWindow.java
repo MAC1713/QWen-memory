@@ -1,29 +1,35 @@
-package AI;
+package AI.Windows;
 
+import AI.Constants.AIChatConstants;
+import AI.Constants.ApiKey;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.common.Message;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.Hashtable;
 import java.util.List;
 
-public class ConfigurationPanel extends JPanel {
+public class ConfigurationWindow extends JFrame {
     private JSlider topPSlider, topKSlider, repetitionPenaltySlider, temperatureSlider;
     private JLabel topPLabel, topKLabel, repetitionPenaltyLabel, temperatureLabel;
     private JButton resetButton;
+    private JPanel contentPanel;
 
-    public ConfigurationPanel() {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(new Color(255, 248, 220));
-        setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "参数配置",
-                TitledBorder.CENTER, TitledBorder.TOP));
+    public ConfigurationWindow() {
+        super("参数配置");
+        contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(new Color(255, 248, 220));
+
+        setContentPane(contentPanel);
 
         initializeSliders();
         addSliders();
         addResetButton();
+
+        pack();
+        setLocationRelativeTo(null);
     }
 
     private void initializeSliders() {
@@ -56,19 +62,19 @@ public class ConfigurationPanel extends JPanel {
     }
 
     private void addSliders() {
-        add(Box.createVerticalStrut(10));
+        contentPanel.add(Box.createVerticalStrut(10));
         addSliderWithLabel(topPSlider, topPLabel, "Top P", 0.01, 2);
-        add(Box.createVerticalStrut(10));
+        contentPanel.add(Box.createVerticalStrut(10));
         addSliderWithLabel(topKSlider, topKLabel, "Top K", 1, 0);
-        add(Box.createVerticalStrut(10));
+        contentPanel.add(Box.createVerticalStrut(10));
         addSliderWithLabel(repetitionPenaltySlider, repetitionPenaltyLabel, "Repetition Penalty", 0.01, 2);
-        add(Box.createVerticalStrut(10));
+        contentPanel.add(Box.createVerticalStrut(10));
         addSliderWithLabel(temperatureSlider, temperatureLabel, "Temperature", 0.01, 2);
     }
 
     private void addSliderWithLabel(JSlider slider, JLabel label, String name, double scale, int decimalPlaces) {
-        add(label);
-        add(slider);
+        contentPanel.add(label);
+        contentPanel.add(slider);
         slider.addChangeListener(e -> {
             double value = slider.getValue() * scale;
             label.setText(String.format("%s: %." + decimalPlaces + "f", name, value));
@@ -108,8 +114,8 @@ public class ConfigurationPanel extends JPanel {
     private void addResetButton() {
         resetButton = new JButton("重置参数");
         resetButton.addActionListener(e -> resetToDefaults());
-        add(Box.createVerticalStrut(10));
-        add(resetButton);
+        contentPanel.add(Box.createVerticalStrut(10));
+        contentPanel.add(resetButton);
     }
 
     public void resetToDefaults() {
@@ -117,5 +123,14 @@ public class ConfigurationPanel extends JPanel {
         topKSlider.setValue(0);
         repetitionPenaltySlider.setValue(110);
         temperatureSlider.setValue(80);
+    }
+
+    public void applyTheme(boolean isDarkMode) {
+        Color bgColor = isDarkMode ? new Color(50, 50, 50) : new Color(255, 248, 220);
+        Color fgColor = isDarkMode ? Color.WHITE : Color.BLACK;
+
+        contentPanel.setBackground(bgColor);
+        contentPanel.setForeground(fgColor);
+        SwingUtilities.updateComponentTreeUI(this);
     }
 }
