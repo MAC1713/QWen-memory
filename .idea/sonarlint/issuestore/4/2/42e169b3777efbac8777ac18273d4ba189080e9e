@@ -1,0 +1,15 @@
+
+v
+java:S1192"YDefine a constant instead of duplicating this literal "SIMPLIFIED_SYSTEM_PROMPT" 3 times.(å…×¸8¤öî2
+x
+java:S1192"VDefine a constant instead of duplicating this literal "INITIAL_SYSTEM_PROMPT" 3 times.(Ìñ¾³üÿÿÿÿ8¤öî2
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¥–Ñµúÿÿÿÿ
+X
+java:S2696"6Make the enclosing method "static" or remove this set.(Ìñ¾³üÿÿÿÿ8¤öî2
+S
+java:S2696"6Make the enclosing method "static" or remove this set.(å…×¸8¤öî2
+L	java:S106"+Replace this use of System.out by a logger.(¢¾„¿üÿÿÿÿ8Ÿ¤öî2
+X
+java:S2696%"6Make the enclosing method "static" or remove this set.(ù¶ºÛúÿÿÿÿ8Ÿ¤öî2
+X
+java:S2696&"6Make the enclosing method "static" or remove this set.(Òù”èûÿÿÿÿ8Ÿ¤öî2

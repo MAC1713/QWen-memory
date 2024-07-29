@@ -1,0 +1,31 @@
+
+i
+java:S1192£"FDefine a constant instead of duplicating this literal "false" 4 times.(ô½«¥ùÿÿÿÿ8·ô‚2
+d
+java:S1659"GDeclare "topKSlider" and all following declarations on a separate line.(¬ğôÚ8êô‚2
+c
+java:S1659"FDeclare "topKLabel" and all following declarations on a separate line.(ÄãÊç8ëô‚2
+‚
+java:S1450"eRemove the "repetitionPenaltyLabel" field and declare it as a local variable in the relevant methods.(ÄãÊç8ìô‚2
+{
+java:S1450"YRemove the "sendButton" field and declare it as a local variable in the relevant methods.(¾ö¨ûÿÿÿÿ8ìô‚2
+|
+java:S1450"_Remove the "temperatureLabel" field and declare it as a local variable in the relevant methods.(ÄãÊç8íô‚2
+…
+java:S1450 "cRemove the "toggleNotebookButton" field and declare it as a local variable in the relevant methods.(úŠ´ºøÿÿÿÿ8íô‚2
+u
+java:S1450"XRemove the "topKLabel" field and declare it as a local variable in the relevant methods.(ÄãÊç8îô‚2
+u
+java:S1450"XRemove the "topPLabel" field and declare it as a local variable in the relevant methods.(ÄãÊç8ïô‚2
+V
+java:S1948"9Make "fullConversationHistory" transient or serializable.(°˜¨8ñô‚2
+g
+java:S3252^"EUse static access with "javax.swing.SwingConstants" for "HORIZONTAL".(Ÿï¹áıÿÿÿÿ8Šõ‚2
+g
+java:S3252c"EUse static access with "javax.swing.SwingConstants" for "HORIZONTAL".(Ë²±Àøÿÿÿÿ8‹õ‚2
+g
+java:S3252h"EUse static access with "javax.swing.SwingConstants" for "HORIZONTAL".(ƒê¯şÿÿÿÿ8‹õ‚2
+g
+java:S3252m"EUse static access with "javax.swing.SwingConstants" for "HORIZONTAL".(‹‘•äùÿÿÿÿ8Œõ‚2
+_
+java:S3457Š"AFormat specifiers should be used instead of string concatenation.(Ğû÷š8õ‚2

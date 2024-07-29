@@ -1,0 +1,15 @@
+
+{	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¥–Ñµúÿÿÿÿ8´‡‰ò2
+Š
+java:S1450#"hRemove the "openConstantsEditorButton" field and declare it as a local variable in the relevant methods.(ïîşÿÿÿÿ8€ˆ‰ò2
+ƒ
+java:S1450 "aRemove the "openNotebookButton" field and declare it as a local variable in the relevant methods.(Ëş¡şÿÿÿÿ8€ˆ‰ò2
+{
+java:S1450"YRemove the "sendButton" field and declare it as a local variable in the relevant methods.(¾ö¨ûÿÿÿÿ8€ˆ‰ò2
+w
+java:S1450""ZRemove the "themeToggle" field and declare it as a local variable in the relevant methods.(¶ÊÍÌ8€ˆ‰ò2
+J
+java:S1948"(Make "aiChat" transient or serializable.(ä¯¦›ÿÿÿÿÿ8ˆ‰ò2
+T
+java:S1948%"2Make "constantsManager" transient or serializable.(ÓÓÏşÿÿÿÿ8ˆ‰ò2
+H	java:S106£"+Replace this use of System.out by a logger.(ÁïŞ˜8¨ˆ‰ò2

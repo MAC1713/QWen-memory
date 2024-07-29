@@ -1,0 +1,16 @@
+
+{	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¥–Ñµúÿÿÿÿ8ß¨¨ñ2
+}
+java:S1450"[Remove the "cancelButton" field and declare it as a local variable in the relevant methods.(½»¡ïÿÿÿÿÿ8Éª¨ñ2
+~
+java:S1450"\Remove the "cleanupButton" field and declare it as a local variable in the relevant methods.(¨°¤æÿÿÿÿÿ8Ëª¨ñ2
+}
+java:S1450"[Remove the "cleanupLabel" field and declare it as a local variable in the relevant methods.(“Ñ·«üÿÿÿÿ8²·Ìñ2
+}
+java:S1450"[Remove the "exportButton" field and declare it as a local variable in the relevant methods.(Œ€«•úÿÿÿÿ8Íª¨ñ2
+x
+java:S1450"[Remove the "importButton" field and declare it as a local variable in the relevant methods.(ÿÖÉÏ8Ïª¨ñ2
+{
+java:S1450"YRemove the "saveButton" field and declare it as a local variable in the relevant methods.(Ò¾íÿÿÿÿÿ8Òª¨ñ2
+s
+java:S1149J"VReplace the synchronized class "Hashtable" by an unsynchronized one such as "HashMap".(á»Ä8ßÁ¼ñ2

@@ -8,7 +8,6 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import org.example.AINotebook;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,113 +20,85 @@ import static AI.AIChatConstants.*;
  * @date 2024-07-23 03:59:06
  */
 
-public class ChatGUI extends JFrame {
+public class ChatWindow extends JFrame {
     private JTextArea chatArea;
     private JTextField inputField;
     private JButton sendButton;
     private AIChat aiChat;
     private AINotebook aiNotebook;
     private ConfigurationPanel configPanel;
-    private JButton openNotebookButton;
     private NotebookWindow notebookWindow;
-    private JToggleButton themeToggle;
-    private JButton openConstantsEditorButton;
     private AIConstantsEditorWindow constantsEditorWindow;
     private AIConstantsManager constantsManager;
-    private boolean isDarkMode = false;
 
-    public ChatGUI() {
+    public ChatWindow() {
         super("AI Chat");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 600);
-        setLayout(new BorderLayout());
-        setResizable(true);
+        initComponents();
+        setupLayout();
+        setupEventListeners();
+    }
 
-        // Set background color
-        getContentPane().setBackground(new Color(255, 248, 220));
-
-        // Initialize components
+    private void initComponents() {
         aiNotebook = new AINotebook();
         aiChat = new AIChat(aiNotebook);
         configPanel = new ConfigurationPanel();
         notebookWindow = new NotebookWindow(aiNotebook);
-        // Initialize AIConstantsManager
         constantsManager = new AIConstantsManager();
-
-        // Initialize AIConstantsEditorWindow
         constantsEditorWindow = new AIConstantsEditorWindow(constantsManager);
 
-        // Create main panel
+        chatArea = new JTextArea();
+        inputField = new JTextField();
+        sendButton = new JButton("发送");
+    }
+
+    private void setupLayout() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1000, 600);
+        setLayout(new BorderLayout());
+
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(255, 248, 220));
-        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        // Add config panel to the left
         mainPanel.add(configPanel, BorderLayout.WEST);
-
-        // Create and add chat panel to the center
-        JPanel chatPanel = createChatPanel();
-        mainPanel.add(chatPanel, BorderLayout.CENTER);
+        mainPanel.add(createChatPanel(), BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.CENTER);
 
-        // Load existing notes
-        if (!aiNotebook.getNotes().isEmpty()) {
-            notebookWindow.loadNotes();
-        }
+        UIConfig.applyInitialTheme(this);
     }
 
     private JPanel createChatPanel() {
         JPanel chatPanel = new JPanel(new BorderLayout());
-        chatPanel.setBackground(new Color(255, 248, 220));
 
-        chatArea = new JTextArea();
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
-        chatArea.setBackground(new Color(255, 250, 240));
         JScrollPane scrollPane = new JScrollPane(chatArea);
         chatPanel.add(scrollPane, BorderLayout.CENTER);
 
         JPanel inputPanel = new JPanel(new BorderLayout());
-        inputPanel.setBackground(new Color(255, 248, 220));
-        inputField = new JTextField();
-        sendButton = new JButton("发送");
+        inputPanel.add(inputField, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(new Color(255, 248, 220));
         buttonPanel.add(sendButton);
+        buttonPanel.add(UIConfig.createOpenNotebookButton(this::openNotebookWindow));
+        buttonPanel.add(UIConfig.createThemeToggle(this::toggleTheme));
+        buttonPanel.add(UIConfig.createOpenConstantsEditorButton(this::openConstantsEditorWindow));
 
-        // Add open notebook button
-        openNotebookButton = new JButton("Open Notebook");
-        openNotebookButton.addActionListener(e -> openNotebookWindow());
-        buttonPanel.add(openNotebookButton);
-
-        // Add theme toggle button
-        themeToggle = new JToggleButton("Dark Mode");
-        themeToggle.addActionListener(e -> toggleTheme());
-        buttonPanel.add(themeToggle);
-
-        // Add open constants editor button
-        openConstantsEditorButton = new JButton("Edit AI Constants");
-        openConstantsEditorButton.addActionListener(e -> openConstantsEditorWindow());
-        buttonPanel.add(openConstantsEditorButton);
-
-        inputPanel.add(inputField, BorderLayout.CENTER);
         inputPanel.add(buttonPanel, BorderLayout.EAST);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
+        return chatPanel;
+    }
+
+    private void setupEventListeners() {
         sendButton.addActionListener(e -> sendMessage());
         inputField.addActionListener(e -> sendMessage());
-
-        return chatPanel;
     }
 
     private void sendMessage() {
         String userInput = inputField.getText();
         CurrentUserMessage.getInstance().setMessage(userInput);
         int messageCount = CurrentUserMessage.getInstance().getMessageCount();
-        if (messageCount == 1) {
+        if (messageCount == 0) {
             sendSpecialMessage(Role.USER, REPEAT_NOTEBOOK);
         }
         if (messageCount % TIME_TO_COLLATION == 0 && messageCount > 0) {
@@ -140,9 +111,7 @@ public class ChatGUI extends JFrame {
                 List<Message> messages = new ArrayList<>();
                 messages.add(Message.builder().role(Role.USER.getValue()).content(userInput).build());
                 String aiResponse = aiChat.generateResponse(userInput, configPanel.createGenerationParam(messages));
-                //存入notebook
                 checkAndUpdateNotebook(aiResponse);
-                //去除note指令部分
                 aiResponse = aiChat.removeNoteTags(aiResponse);
                 chatArea.append("Emma: " + aiResponse + "\n\n");
             } catch (ApiException | NoApiKeyException | InputRequiredException ex) {
@@ -176,32 +145,13 @@ public class ChatGUI extends JFrame {
     }
 
     private void toggleTheme() {
-        isDarkMode = !isDarkMode;
-        applyTheme();
-    }
-
-    private void applyTheme() {
-        Color bgColor = isDarkMode ? new Color(50, 50, 50) : new Color(255, 248, 220);
-        Color fgColor = isDarkMode ? Color.WHITE : Color.BLACK;
-
-        getContentPane().setBackground(bgColor);
-        chatArea.setBackground(isDarkMode ? new Color(70, 70, 70) : new Color(255, 250, 240));
-        chatArea.setForeground(fgColor);
-        inputField.setBackground(bgColor);
-        inputField.setForeground(fgColor);
-        configPanel.setBackground(bgColor);
-        configPanel.setForeground(fgColor);
-
-        // Update NotebookWindow theme
-        notebookWindow.applyTheme(isDarkMode);
-        constantsEditorWindow.applyTheme(isDarkMode);
-
-        SwingUtilities.updateComponentTreeUI(this);
+        UIConfig.toggleTheme(this, chatArea, inputField, configPanel);
+        notebookWindow.applyTheme(UIConfig.isDarkMode());
+        constantsEditorWindow.applyTheme(UIConfig.isDarkMode());
     }
 
     private void openConstantsEditorWindow() {
         constantsEditorWindow.setVisible(true);
     }
-
 }
 

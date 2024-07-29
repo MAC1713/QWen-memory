@@ -1,0 +1,12 @@
+
+{	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¥–Ñµúÿÿÿÿ8óŒÃ2
+d
+java:S1659"GDeclare "topKSlider" and all following declarations on a separate line.(¬ğôÚ8şŒÃ2
+c
+java:S1659"FDeclare "topKLabel" and all following declarations on a separate line.(ÄãÊç8şŒÃ2
+w
+java:S1450"ZRemove the "resetButton" field and declare it as a local variable in the relevant methods.(ÿ‘à©8şŒÃ2
+s
+java:S11491"VReplace the synchronized class "Hashtable" by an unsynchronized one such as "HashMap".(á»Ä8ÿŒÃ2
+^
+java:S3457J"AFormat specifiers should be used instead of string concatenation.(Ğû÷š8†Ã2

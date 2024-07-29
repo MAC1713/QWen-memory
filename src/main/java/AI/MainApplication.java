@@ -25,8 +25,8 @@ public class MainApplication {
 
         // Launch the application on the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
-            ChatGUI chatGUI = new ChatGUI();
-            chatGUI.setVisible(true);
+            ChatWindow chatWindow = new ChatWindow();
+            chatWindow.setVisible(true);
         });
     }
 }

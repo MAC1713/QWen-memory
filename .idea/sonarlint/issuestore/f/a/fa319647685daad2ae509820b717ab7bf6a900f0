@@ -1,0 +1,12 @@
+
+{	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¥–Ñµúÿÿÿÿ8šÄ›ï2
+z
+java:S21399"XEither log this exception and handle it, or rethrow it with some contextual information.(¡Áåùÿÿÿÿ8²Å›ï2
+V
+java:S1128"4Remove this unused import 'java.time.LocalDateTime'.(æÃ§ƒüÿÿÿÿ8ÌÅ›ï2
+H
+java:S1128"+Remove this unused import 'java.util.Date'.(¸…¼ü8ÌÅ›ï2
+L
+java:S1068"/Remove this unused "configPanel" private field.(‘Õ³‡8ÌÅ›ï2
+H
+java:S1068"+Remove this unused "chatGUI" private field.(­ÂŸ¯8ÌÅ›ï2
